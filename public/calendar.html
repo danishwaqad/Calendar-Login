@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.0/main.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #calendar {
+            margin: 20px auto;
+            max-width: 800px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #eventForm {
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label, input, button {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<h1>Calendar Page</h1>
+
+<div id="calendar"></div>
+
+<div id="eventForm">
+    <h2>Add Event</h2>
+    <form id="addEventForm">
+        <label for="eventTitle">Title:</label>
+        <input type="text" id="eventTitle" name="title" required>
+
+        <label for="eventStart">Start Date:</label>
+        <input type="date" id="eventStart" name="start" required>
+
+        <label for="eventEnd">End Date:</label>
+        <input type="date" id="eventEnd" name="end" required>
+
+        <button type="submit">Add Event</button>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.0/main.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            events: [] // Initial empty events array
+        });
+
+        async function fetchAndRenderEvents() {
+            const response = await fetch('/api/events');
+            const events = await response.json();
+
+            // Set the events array for the calendar
+            calendar.removeAllEvents();
+            calendar.addEventSource(events);
+            calendar.render();
+        }
+
+        // Fetch and render events on page load
+        await fetchAndRenderEvents();
+
+        const addEventForm = document.getElementById('addEventForm');
+        addEventForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const eventTitle = document.getElementById('eventTitle').value;
+            const eventStart = document.getElementById('eventStart').value;
+            const eventEnd = document.getElementById('eventEnd').value;
+
+            const response = await fetch('/api/api/create-events', {  // Updated URL
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: eventTitle,
+                    start: eventStart,
+                    end: eventEnd
+                })
+            });
+
+            if (response.ok) {
+                // Fetch and render events to show the new event
+                await fetchAndRenderEvents();
+                // Clear the form
+                addEventForm.reset();
+            } else {
+                // Handle error
+                console.error('Error adding event:', response.statusText);
+            }
+        });
+    });
+</script>
+</body>
+</html>

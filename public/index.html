@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and Register</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        form {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 300px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label, input {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<h1>Login and Register</h1>
+
+<div>
+<!--    <h2>Login</h2>-->
+    <form id="loginForm">
+        <label for="loginUsername">Username:</label>
+        <input type="text" id="loginUsername" name="username" required>
+
+        <label for="loginPassword">Password:</label>
+        <input type="password" id="loginPassword" name="password" required>
+
+        <button type="submit">Login</button>
+    </form>
+</div>
+
+<div>
+<!--    <h2>Register</h2>-->
+    <form id="registerForm">
+        <label for="registerUsername">Username:</label>
+        <input type="text" id="registerUsername" name="username" required>
+
+        <label for="registerEmail">Email:</label>
+        <input type="email" id="registerEmail" name="email" required>
+
+        <label for="registerPassword">Password:</label>
+        <input type="password" id="registerPassword" name="password" required>
+
+        <button type="submit">Register</button>
+    </form>
+</div>
+
+<script>
+    function showAlert(message) {
+        alert(message);
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+
+        // Clear textboxes after submission
+        document.getElementById('loginUsername').value = '';
+        document.getElementById('loginPassword').value = '';
+
+        const response = await fetch('/api/auth/signin', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            console.log('Login successful:', data);
+            showAlert('Login successful');
+            // Redirect to the calendar page
+            window.location.href = 'calendar.html';
+        } else {
+            console.error('Login error:', data.message);
+            showAlert('Login error: ' + data.message);
+            // Handle login error
+        }
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const username = document.getElementById('registerUsername').value;
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+
+        // Clear textboxes after submission
+        document.getElementById('registerUsername').value = '';
+        document.getElementById('registerEmail').value = '';
+        document.getElementById('registerPassword').value = '';
+
+        const response = await fetch('/api/auth/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, email, password })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            console.log('Registration successful:', data);
+            showAlert('Registration successful');
+            // Redirect or update UI here
+        } else {
+            console.error('Registration error:', data.message);
+            showAlert('Registration error: ' + data.message);
+            // Handle registration error
+        }
+    });
+</script>
+
+</body>
+</html>
